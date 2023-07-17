@@ -74,10 +74,10 @@ for j in range(25):
             #     print(confidence)
             total += 1
 
-    print("Accuracy: ", correct/total)
-    accuracies.append(correct/total)
+    accuracy = correct/total
+    accuracies.append(accuracy)
 
-print('Total accuracies: ', sum(accuracies)/len(accuracies))
+print(sum(accuracies)/len(accuracies))
 # -------------------------------------------------------------------------------------------------------------------- #
 # result = k_nearest_neighbors(dataset, new_features)
 # print(result)
