@@ -78,9 +78,12 @@ class Support_Vector_Machine:
                             for xi in self.data[i]:
                                 yi = i
                                 # If yi*(np.dot(w_t, xi) + b) < 1, don't add it to the opt_dict
-                                if not yi*(np.dot(w_t, xi) + b) >= 1:
+                                if not yi * (np.dot(w_t, xi) + b) >= 1:
                                     found_option = False
-                                # print(xi, ':', yi*(np.dot(w_t, xi) + b))
+                                    # print(xi,':',yi*(np.dot(w_t,xi)+b))
+                                    break
+                            if not found_option:
+                                break
                         if found_option:
                             # np.linalg.norm(w_t) is the magnitude of the vector
                             opt_dict[np.linalg.norm(w_t)] = [w_t, b]
