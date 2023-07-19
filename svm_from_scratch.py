@@ -4,7 +4,6 @@ import numpy as np
 
 style.use('ggplot')
 
-
 class Support_Vector_Machine:
     def __init__(self, visualization=True):
         self.visualization = visualization
@@ -17,15 +16,15 @@ class Support_Vector_Machine:
     # Training
     def fit(self, data):
         self.data = data
-        # { ||w||: [w,b] }
+        # { ||w||: [w, b]}
         opt_dict = {}
 
-        '''
-        transforms = [[1,1],
-                      [-1,1],
-                      [-1,-1],
-                      [1,-1]]
-        '''
+        # # Transform the data after the equation b/c data comes out as [+, +] and we want to test all vectors instead of
+        # # just positive ones
+        # transform = [[1, 1],
+        #              [-1, -1],
+        #              [-1, 1],
+        #              [1, -1]]
 
         rot_matrix = lambda theta: np.array([[np.cos(theta), -np.sin(theta)],
                                             [np.sin(theta), np.cos(theta)]])
@@ -49,23 +48,22 @@ class Support_Vector_Machine:
         # Take smaller and smaller steps until you get a "perfect" support vector
         step_sizes = [self.max_feature_value * 0.1,
                       self.max_feature_value * 0.01,
-                      # point of expense:
-                      self.max_feature_value * 0.001,
-                      ]
+                      # Point of expense
+                      self.max_feature_value * 0.001]
 
-        # extremely expensive
+        # Extremely expensive
         b_range_multiple = 2
-        # we don't need to take as small of steps
+        # We don't need to take as small of steps
         # with b as we do w
         b_multiple = 5
         latest_optimum = self.max_feature_value * 10
 
         for step in step_sizes:
+            # Start the first swing at max value
             w = np.array([latest_optimum, latest_optimum])
-            # we can do this because convex
-            optimized = False
-            while not optimized:
-                for b in np.arange(-1 * (self.max_feature_value * b_range_multiple),
+            optimised = False
+            while not optimised:
+                for b in np.arange(-1 * (self.max_feature_value*b_range_multiple),
                                    self.max_feature_value * b_range_multiple,
                                    step * b_multiple):
                     for transformation in transforms:
@@ -73,40 +71,36 @@ class Support_Vector_Machine:
                         found_option = True
                         # Weakest link in the SVM fundamentally
                         # SMO attempts to fix this a bit
-                        # yi(xi.w+b) >= 1
-                        #
-                        # #### add a break here later...
+                        # yi(xi.w + b) >= 1
                         for i in self.data:
                             for xi in self.data[i]:
                                 yi = i
-                                if not yi * (np.dot(w_t, xi) + b) >= 1:
+                                # If yi*(np.dot(w_t, xi) + b) < 1, don't add it to the opt_dict
+                                if not yi*(np.dot(w_t, xi) + b) >= 1:
                                     found_option = False
-                                    # print(xi,':',yi*(np.dot(w_t,xi)+b))
                                     break
+                                # print(xi, ':', yi*(np.dot(w_t, xi) + b))
                             if not found_option:
                                 break
-
                         if found_option:
+                            # np.linalg.norm(w_t) is the magnitude of the vector
                             opt_dict[np.linalg.norm(w_t)] = [w_t, b]
-
                 if w[0] < 0:
-                    optimized = True
-                    print('Optimized a step.')
+                    optimised = True
+                    print('Optimized a step')
                 else:
+                    # w = [5,5], step = 1, w - step = [4, 4]
                     w = w - step
 
+            # Sorted list of magnitudes, sort them from lowest to highest
             norms = sorted([n for n in opt_dict])
             opt_choice = opt_dict[norms[0]]
+            # ||w|| : [w, b]
             self.w = opt_choice[0]
             self.b = opt_choice[1]
-            latest_optimum = opt_choice[0][0] + step * 2
+            # Reset the latest optimum to smaller value
+            latest_optimum = opt_choice[0][0]+step*2
             print(self.w / np.linalg.norm(self.w))
-        '''    
-        for i in self.data:
-            for xi in self.data[i]:
-                yi=i
-                print(xi,':',yi*(np.dot(self.w,xi)+self.b))
-        '''
 
     # Checks whether the class is a positive or negative
     def predict(self, features):
@@ -116,14 +110,13 @@ class Support_Vector_Machine:
             self.ax.scatter(features[0], features[1], s=200, marker='*', c=self.colors[classification])
         return classification
 
-    def visualize(self):
-        [[self.ax.scatter(x[0], x[1], s=100, color=self.colors[i]) for x in data_dict[i]] for i in data_dict]
+    def visualise(self):
+        [[self.ax.scatter(x[0], x[1], s=100, c=self.colors[i]) for x in data_dict[i]] for i in data_dict]
 
         # Hyperplane = x.w + b
         # v = x.w + b
         # psv = 1
-        # nsv = -1
-        # dec = 0
+
         def hyperplane(x, w, b, v):
             return (-w[0] * x - b + v) / w[1]
 
@@ -153,25 +146,21 @@ class Support_Vector_Machine:
 
 
 data_dict = {-1: np.array([[1, 1],
-                           [2, 1],
-                           [3, 1]]),
-              1: np.array([[1, 4],
-                           [2, 4],
-                           [3, 4]])}
+                           [2, -1],
+                           [3, 2]]),
+              1: np.array([[1, 3],
+                           [2, 7],
+                           [3, 6]])}
 
 svm = Support_Vector_Machine()
 svm.fit(data=data_dict)
 
 predict_us = [[0, 10],
               [1, 3],
-              [3, 4],
-              [3, 5],
               [5, 5],
               [5, 6],
               [6, -5],
               [5, 8]]
-
 for p in predict_us:
     svm.predict(p)
-
-svm.visualize()
+svm.visualise()
