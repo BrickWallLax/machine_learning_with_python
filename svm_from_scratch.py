@@ -46,30 +46,28 @@ class Support_Vector_Machine:
         all_data = None
 
         # Take smaller and smaller steps until you get a "perfect" support vector
-        step_sizes = [self.max_feature_value * .1,
-                      self.max_feature_value * .01,
+        step_sizes = [self.max_feature_value * 0.1,
+                      self.max_feature_value * 0.01,
                       # Point of expense
-                      self.max_feature_value * .001,
-                      self.max_feature_value * .005]
+                      self.max_feature_value * 0.001]
 
         # Extremely expensive
-        b_range_multiple = 5
+        b_range_multiple = 2
         # We don't need to take as small of steps
         # with b as we do w
         b_multiple = 5
-        latest_optimum = self.max_feature_value*10
+        latest_optimum = self.max_feature_value * 10
 
         for step in step_sizes:
             # Start the first swing at max value
             w = np.array([latest_optimum, latest_optimum])
             optimised = False
-            # Check
             while not optimised:
-                for b in np.arange(-1*(self.max_feature_value*b_range_multiple),
-                                   self.max_feature_value*b_range_multiple,
-                                   step*b_multiple):
+                for b in np.arange(-1 * (self.max_feature_value*b_range_multiple),
+                                   self.max_feature_value * b_range_multiple,
+                                   step * b_multiple):
                     for transformation in transforms:
-                        w_t = w*transformation
+                        w_t = w * transformation
                         found_option = True
                         # Weakest link in the SVM fundamentally
                         # SMO attempts to fix this a bit
@@ -80,7 +78,10 @@ class Support_Vector_Machine:
                                 # If yi*(np.dot(w_t, xi) + b) < 1, don't add it to the opt_dict
                                 if not yi*(np.dot(w_t, xi) + b) >= 1:
                                     found_option = False
+                                    break
                                 # print(xi, ':', yi*(np.dot(w_t, xi) + b))
+                            if not found_option:
+                                break
                         if found_option:
                             # np.linalg.norm(w_t) is the magnitude of the vector
                             opt_dict[np.linalg.norm(w_t)] = [w_t, b]
@@ -90,6 +91,7 @@ class Support_Vector_Machine:
                 else:
                     # w = [5,5], step = 1, w - step = [4, 4]
                     w = w - step
+
             # Sorted list of magnitudes, sort them from lowest to highest
             norms = sorted([n for n in opt_dict])
             opt_choice = opt_dict[norms[0]]
@@ -98,6 +100,7 @@ class Support_Vector_Machine:
             self.b = opt_choice[1]
             # Reset the latest optimum to smaller value
             latest_optimum = opt_choice[0][0]+step*2
+            print(self.w / np.linalg.norm(self.w))
 
     # Checks whether the class is a positive or negative
     def predict(self, features):
@@ -115,7 +118,7 @@ class Support_Vector_Machine:
         # psv = 1
 
         def hyperplane(x, w, b, v):
-            return (-w[0]*x + b + v) / w[1]
+            return (-w[0] * x - b + v) / w[1]
 
         data_range = (self.min_feature_value * 0.9, self.max_feature_value * 1.1)
         hyp_x_min = data_range[0]
@@ -143,11 +146,11 @@ class Support_Vector_Machine:
 
 
 data_dict = {-1: np.array([[1, 1],
-                           [2, 1],
-                           [3, 1]]),
-              1: np.array([[1, 4],
-                           [2, 4],
-                           [3, 4]])}
+                           [2, -1],
+                           [3, 2]]),
+              1: np.array([[1, 3],
+                           [2, 7],
+                           [3, 6]])}
 
 svm = Support_Vector_Machine()
 svm.fit(data=data_dict)
