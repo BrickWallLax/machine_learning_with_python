@@ -79,7 +79,7 @@ class Support_Vector_Machine:
                                 if not yi*(np.dot(w_t, xi) + b) >= 1:
                                     found_option = False
                                     break
-                                # print(xi, ':', yi*(np.dot(w_t, xi) + b))
+                                print(xi, ':', yi*(np.dot(w_t, xi) + b))
                             if not found_option:
                                 break
                         if found_option:

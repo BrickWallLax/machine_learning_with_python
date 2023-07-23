@@ -15,18 +15,18 @@ y = np.array(df['class'])
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2)
 
-clf = svm.SVC(kernel = "linear")
+clf = svm.SVC(kernel='linear')
 clf.fit(X_train, y_train)
 
-# with open('supportvectormachine.pickle', 'wb') as f:  # Set up model file
-    # pickle.dump(clf, f)
+with open('supportvectormachine.pickle', 'wb') as f:  # Set up model file
+    pickle.dump(clf, f)
 pickle_in = open('supportvectormachine.pickle', 'rb')  # Open model file
 clf = pickle.load(pickle_in)
 
 accuracy = clf.score(X_test, y_test)
 print(accuracy)
 
-example_measures = np.array([[3, 1, 2, 3, 4, 4, 2, 5, 3], [3, 7, 2, 5, 4, 1, 2, 7, 3], [3, 7, 2, 5, 4, 1, 10, 7, 3]])
+example_measures = np.array([[2, 1, 4, 1, 5, 1, 2, 1, 3], [3, 2, 2, 5, 4, 1, 2, 3, 3], [3, 7, 2, 5, 4, 1, 10, 7, 3]])
 
 example_measures = example_measures.reshape(len(example_measures), -1)
 
