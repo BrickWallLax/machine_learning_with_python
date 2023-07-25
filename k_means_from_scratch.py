@@ -8,12 +8,15 @@ X = np.array([[1, 2],
               [5, 8],
               [8, 8],
               [1, 0.6],
-              [9, 11]])
+              [9, 11],
+              [4, 6],
+              [8, 5],
+              [4, 2],
+              [2, 1],
+              [0, 3]])
 
-plt.scatter(X[:, 0], X[:, 1], s=150, linewidths=5)
-plt.show()
+colors = 10*["g", "b", "r", "c", "k", "y"]
 
-colors = 10*["g.", "b.", "r.", "c.", "k.", "y."]
 
 class K_Means:
     def __init__(self, k=2, tol=0.001, max_iter=300):
@@ -40,8 +43,45 @@ class K_Means:
             prev_centroids = dict(self.centroids)
 
             for classification in self.classifications:
-                pass
-                # self.centroids[classification] = np.average(self.classifications[classification], axis=0)
+                self.centroids[classification] = np.average(self.classifications[classification], axis=0)
+            optimized = True
+
+            for c in self.centroids:
+                original_centroid = prev_centroids[c]
+                current_centroid = self.centroids[c]
+                if np.sum((current_centroid-original_centroid)/original_centroid*100.0) > self.tol:
+                    print(np.sum((current_centroid-original_centroid)/original_centroid*100.0))
+                    optimized = False
+
+            if optimized:
+                break
 
     def predict(self, data):
-        pass
+        distances = [np.linalg.norm(data - self.centroids[centroid]) for centroid in self.centroids]
+        classification = distances.index(min(distances))
+        return classification
+
+
+clf = K_Means()
+clf.fit(X)
+
+for centroid in clf.centroids:
+    plt.scatter(clf.centroids[centroid][0], clf.centroids[centroid][1],
+                marker='o', color='k', s=150, linewidths=5)
+
+for classification in clf.classifications:
+    for feature_set in clf.classifications[classification]:
+        plt.scatter(feature_set[0], feature_set[1], marker='x', color=colors[classification], s=150, linewidths=5)
+
+# unknowns = np.array([[4, 6],
+#                      [8, 5],
+#                      [4, 2],
+#                      [2, 1],
+#                      [0, 3]])
+#
+# for unknown in unknowns:
+#     classification = clf.predict(unknown)
+#     plt.scatter(unknown[0], unknown[1], marker='*', color=colors[classification], s=150, linewidths=5)
+
+
+plt.show()
